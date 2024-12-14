@@ -1,0 +1,30 @@
+replicaCount: 2
+
+image:
+  repository: oz23/photos-app
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: NodePort
+  port: 80
+
+database:
+  host: "{{ .Release.Name }}-mysql"
+  port: "3306"
+  user: "user"
+  password: "password"
+  name: "mydb"
+
+s3:
+  bucket: "Final-Project-technion-2468"
+  region: "us-east-1"
+
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

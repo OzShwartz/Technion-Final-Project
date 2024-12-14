@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-app
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-app
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-app
+    spec:
+      containers:
+      - name: app
+      image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+      imagePullPolicy: {{ .Values.image.pullPolicy }}
+      ports:
+        - containerPort: 80
+      envFrom:
+        - secretRef:
+            name: db-secrets
+      volumeMounts:
+        - name: app-config
+            mountPath: /app/config/app_settings.py
+            subPath: app_settings.py
+    volumes:
+        - name: app-config
+        configMap:
+            name: {{ .Release.Name }}-app-config
+

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-app-config
+data:
+  app_settings.py: |
+    # Configuration for Python application
+    DB_HOST = "{{ .Values.database.host }}"
+    DB_PORT = "{{ .Values.database.port }}"
+    DB_USER = "{{ .Values.database.user }}"
+    DB_PASSWORD = "{{ .Values.database.password }}"
+    DB_NAME = "{{ .Values.database.name }}"
+    S3_BUCKET = "{{ .Values.s3.bucket }}"
+    S3_REGION = "{{ .Values.s3.region }}"

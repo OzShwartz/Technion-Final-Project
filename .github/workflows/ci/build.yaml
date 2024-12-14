@@ -1,0 +1,44 @@
+name: CI
+run-name: CI
+
+on:
+  push:
+    branches:
+      - Lesson-4
+    paths:
+      - .github/workflows/ci.yaml
+  workflow_dispatch:
+
+env:
+  IMAGE_NAME: pyui
+  IMAGE_TAG: v1
+  DOCKER_ACCOUNT: oz23
+
+jobs:
+  Build-and-Upload:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Docker
+        run: |
+          sudo yum install -y docker
+          sudo systemctl start docker
+          sudo systemctl enable docker
+          sudo usermod -aG docker $USER
+          newgrp docker
+          sudo chmod 666 /var/run/docker.sock
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Docker image
+        run: docker build -t ${{ env.DOCKER_ACCOUNT }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} ./app
+
+      - name: Push Docker image
+        run: docker push ${{ env.DOCKER_ACCOUNT }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}

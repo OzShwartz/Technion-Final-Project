@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background-color: #0078d7;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .photos {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .photo {
+            margin: 10px;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .photo img {
+            display: block;
+            max-width: 300px;
+            max-height: 300px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>{{ welcome_message }}</h1>
+    </div>
+    <div class="photos">
+        {% for photo in photos %}
+        <div class="photo">
+            <a href="/photo/{{ photo }}">
+                <img src="/photo/{{ photo }}" alt="{{ photo }}">
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+
+</html>

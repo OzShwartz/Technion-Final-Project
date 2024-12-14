@@ -1,0 +1,118 @@
+name: Terraform GitOps Workflow
+run-name: TerraformCD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'infra/**'
+  pull_request:
+    types: [ opened, synchronize, reopened, edited ]
+    paths:
+      - 'infra/**'
+  workflow_dispatch:
+    inputs:
+      TF_LOG:
+        description: "Run Terraform in log mode"
+        required: true
+        type: choice
+        options:
+          - "DEBUG"
+          - "INFO"
+          - "WARN"
+          - "ERROR"
+        default: "INFO"
+
+env:
+  TF_VERSION: "1.5.7"
+  AWS_REGION: "us-east-1"
+
+jobs:
+  terraform-plan:
+    runs-on: self-hosted
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Set Docker
+        run: |
+          sudo yum update -y
+          sudo yum install docker -y
+          sudo service docker start
+          sudo usermod -a -G docker ec2-user
+          newgrp docker
+          sudo chmod 666 /var/run/docker.sock
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '14'
+
+      - name: Terraform Init
+        working-directory: infra
+        run: terraform init
+
+      - name: Terraform Plan
+        working-directory: infra
+        run: terraform plan -out=tfplan -input=false
+        env:
+          AWS_REGION: ${{ env.AWS_REGION }}
+          TF_LOG: ${{ inputs.TF_LOG }}
+
+      - name: Upload Plan Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: tfplan
+          path: infra/tfplan
+
+  manual-approval:
+    needs: terraform-plan
+    runs-on: self-hosted
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
+    steps:
+      - uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ secrets.GH_PAT }}
+          approvers: ${{ vars.TERRAFORM_MANUAL_APPROVALS }}
+          minimum-approvals: 1
+          issue-title: "Terraform Apply Approval Request"
+          issue-body: "Please approve or deny the terraform apply command"
+
+  terraform-apply:
+    needs: manual-approval
+    runs-on: self-hosted
+    if: github.event_name != 'workflow_dispatch' || github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+    steps:
+      - name: Download Plan Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: tfplan
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '14'
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          TF_LOG: ${{ inputs.TF_LOG }}
+
+      - name: Terraform Apply
+        working-directory: infra
+        run: terraform apply -input=false tfplan
+        env:
+          AWS_REGION: ${{ env.AWS_REGION }}
+          TF_LOG: ${{ inputs.TF_LOG }}
