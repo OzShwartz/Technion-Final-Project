@@ -4,9 +4,9 @@ run-name: CI
 on:
   push:
     branches:
-      - Lesson-4
+      - main
     paths:
-      - .github/workflows/ci.yaml
+      - .github/workflows/ci/build.yaml
   workflow_dispatch:
 
 env:
