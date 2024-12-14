@@ -17,7 +17,7 @@ database:
   name: "mydb"
 
 s3:
-  bucket: "Final-Project-technion-2468"
+  bucket: "final-project-technion-2468"
   region: "us-east-1"
 
 
