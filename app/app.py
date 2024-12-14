@@ -4,7 +4,7 @@ import json
 
 app = Flask(__name__)
 
-# Function to load the configuration file
+# Function to load the configuration files
 def load_config(config_path="config.json"):
     try:
         with open(config_path, "r") as file:
