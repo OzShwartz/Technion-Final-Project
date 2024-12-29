@@ -35,10 +35,10 @@ jobs:
             curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
             # Deploy MySQL Helm chart
-            helm upgrade --install mysql ~/repo/charts/mysql \
+            helm upgrade --install mysql ~/repo/helm-charts/mysql \
               --namespace my-app \
               --create-namespace \
-              --values ~/repo/charts/mysql/values.yaml
+              --values ~/repo/helm-charts/mysql/values.yaml
 
             # Wait for MySQL to become available
             kubectl wait --namespace my-app \
@@ -47,6 +47,6 @@ jobs:
               --timeout=300s
 
             # Deploy Application Helm chart
-            helm upgrade --install application ~/repo/charts/application \
+            helm upgrade --install application ~/repo/helm-charts/application \
               --namespace my-app \
               --values ~/repo/charts/application/values.yaml
