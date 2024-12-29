@@ -33,19 +33,21 @@ jobs:
           script: |
 
             script: |
-                # Deploy MySQL
+              # Install Helm
+                  curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+              # Deploy MySQL
                 helm upgrade --install mysql ./charts/mysql \
                   --namespace my-app \
                   --create-namespace \
                   --values ./charts/mysql/values.yaml
 
-                # Wait for MySQL to become available
+              # Wait for MySQL to become available
                 kubectl wait --namespace my-app \
                   --for=condition=ready pod \
                   --selector=app.kubernetes.io/name=mysql \
                   --timeout=300s
 
-                # Deploy the application
+              # Deploy the application
                 helm upgrade --install application ./charts/application \
                   --namespace my-app \
                   --values ./charts/application/values.yaml
