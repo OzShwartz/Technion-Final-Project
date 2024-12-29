@@ -31,6 +31,4 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: 22
           script: |
-            cd ~/repo/k8s-manifests
-
-            # TODO: deploy k8s yaml
+            kubectl create namespace pyui || true
