@@ -11,7 +11,7 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - name: Checkout Code #git clone
+      - name: Checkout Code # Clone the repository
         uses: actions/checkout@v3
 
       - name: Copy Repo to Kind EC2
@@ -23,35 +23,30 @@ jobs:
           # Use rsync to copy the repository, excluding key.pem
           rsync -avz -e "ssh -i key.pem -o StrictHostKeyChecking=no" --exclude 'key.pem' ./ ec2-user@${{ inputs.EC2_IP }}:~/repo
 
-      - name: Deploy to kind Cluster
+      - name: Deploy to Kind Cluster
         uses: appleboy/ssh-action@v1.2.0
         with:
-          host: ${{ inputs.EC2_IP}}
+          host: ${{ inputs.EC2_IP }}
           username: ec2-user
           key: ${{ secrets.SSH_KEY }}
           port: 22
           script: |
+            # Install Helm
+            curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
-            script: |
-              # Install Helm
-                  curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-              # Deploy MySQL
-                helm upgrade --install mysql ./charts/mysql \
-                  --namespace my-app \
-                  --create-namespace \
-                  --values ./charts/mysql/values.yaml
+            # Deploy MySQL Helm chart
+            helm upgrade --install mysql ~/repo/charts/mysql \
+              --namespace my-app \
+              --create-namespace \
+              --values ~/repo/charts/mysql/values.yaml
 
-              # Wait for MySQL to become available
-                kubectl wait --namespace my-app \
-                  --for=condition=ready pod \
-                  --selector=app.kubernetes.io/name=mysql \
-                  --timeout=300s
+            # Wait for MySQL to become available
+            kubectl wait --namespace my-app \
+              --for=condition=ready pod \
+              --selector=app.kubernetes.io/name=mysql \
+              --timeout=300s
 
-              # Deploy the application
-                helm upgrade --install application ./charts/application \
-                  --namespace my-app \
-                  --values ./charts/application/values.yaml
-
-
-
-                        
+            # Deploy Application Helm chart
+            helm upgrade --install application ~/repo/charts/application \
+              --namespace my-app \
+              --values ~/repo/charts/application/values.yaml
