@@ -31,30 +31,25 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: 22
           script: |
-              # Update the system and ensure Docker and kubectl are installed
-              sudo yum update -y
-              sudo systemctl start docker
 
-              # Set kubeconfig to access the Kind cluster
-              export KUBECONFIG="$(kind get kubeconfig-path --name="kind-cluster")"
+            script: |
+                # Deploy MySQL
+                helm upgrade --install mysql ./charts/mysql \
+                  --namespace my-app \
+                  --create-namespace \
+                  --values ./charts/mysql/values.yaml
 
-              # Verify kubectl connectivity
-              kubectl cluster-info
+                # Wait for MySQL to become available
+                kubectl wait --namespace my-app \
+                  --for=condition=ready pod \
+                  --selector=app.kubernetes.io/name=mysql \
+                  --timeout=300s
 
-              # Create namespace for the application if not exists
-              kubectl create namespace my-app || true
+                # Deploy the application
+                helm upgrade --install application ./charts/application \
+                  --namespace my-app \
+                  --values ./charts/application/values.yaml
 
-              # Deploy the application using Helm
-              helm repo add my-app-repo https://example.com/helm-charts
-              helm repo update
-              helm upgrade --install my-app my-app-repo/my-app-chart \
-                --namespace my-app \
-                --set image.tag=latest \
-                --set mysql.rootPassword=your-password
 
-              # Apply MySQL YAML file
-              kubectl apply -f mysql-deployment.yaml -n my-app
 
-              # Verify deployments
-              kubectl get pods -n my-app
                         
