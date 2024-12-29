@@ -19,6 +19,8 @@ secrets:
   dbUser: user
   dbPassword: password
 
+mysqlUrl: "mysql://user:password@mysql-service.my-app.svc.cluster.local:3306/mydb"
+
 resources: {}
 
 nodeSelector: {}

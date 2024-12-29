@@ -31,4 +31,30 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: 22
           script: |
-            kubectl create namespace pyui || true
+              # Update the system and ensure Docker and kubectl are installed
+              sudo yum update -y
+              sudo systemctl start docker
+
+              # Set kubeconfig to access the Kind cluster
+              export KUBECONFIG="$(kind get kubeconfig-path --name="kind-cluster")"
+
+              # Verify kubectl connectivity
+              kubectl cluster-info
+
+              # Create namespace for the application if not exists
+              kubectl create namespace my-app || true
+
+              # Deploy the application using Helm
+              helm repo add my-app-repo https://example.com/helm-charts
+              helm repo update
+              helm upgrade --install my-app my-app-repo/my-app-chart \
+                --namespace my-app \
+                --set image.tag=latest \
+                --set mysql.rootPassword=your-password
+
+              # Apply MySQL YAML file
+              kubectl apply -f mysql-deployment.yaml -n my-app
+
+              # Verify deployments
+              kubectl get pods -n my-app
+                        
