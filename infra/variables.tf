@@ -3,7 +3,7 @@ variable "ami" {
 }
 
 variable "instance_type" {
-  default = "t2.medium"
+  default = "t3.medium"
 }
 
 variable "ssh_key_name" {

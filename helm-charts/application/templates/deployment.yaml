@@ -17,7 +17,7 @@ spec:
       image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
       imagePullPolicy: {{ .Values.image.pullPolicy }}
       ports:
-        - containerPort: 80
+        - containerPort: 5001
       envFrom:
         - secretRef:
             name: db-secrets
