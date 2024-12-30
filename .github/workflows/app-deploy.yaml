@@ -1,49 +1,39 @@
-name: CD
+name: CD # Continuous Deployment Workflow
 on:
-  workflow_dispatch:
+  workflow_dispatch: # Manual trigger
     inputs:
       EC2_IP:
-        description: "The IP address of the Kind EC2 instance"
+        description: "The IP address of the Kind EC2 instance" # IP of the EC2 instance
         required: true
 
 jobs:
   Deploy:
-    runs-on: self-hosted
+    runs-on: self-hosted # Run the job on a self-hosted runner
 
     steps:
       - name: Checkout Code # Clone the repository
         uses: actions/checkout@v3
 
-      - name: Copy Repo to Kind EC2
+      - name: Copy Repo to Kind EC2 # Copy repository to the EC2 instance
         run: |
-          # Save the SSH private key to a file
-          echo "${{ secrets.SSH_KEY }}" > key.pem
-          chmod 400 key.pem
-
-          # Use rsync to copy the repository, excluding key.pem
+          echo "${{ secrets.SSH_KEY }}" > key.pem # Save SSH private key
+          chmod 400 key.pem # Set appropriate permissions
           rsync -avz -e "ssh -i key.pem -o StrictHostKeyChecking=no" --exclude 'key.pem' ./ ec2-user@${{ inputs.EC2_IP }}:~/repo
 
-      - name: Deploy to Kind Cluster
+      - name: Deploy to Kind Cluster # Deploy the application on the Kind cluster
         uses: appleboy/ssh-action@v1.2.0
         with:
-          host: ${{ inputs.EC2_IP }}
-          username: ec2-user
-          key: ${{ secrets.SSH_KEY }}
-          port: 22
+          host: ${{ inputs.EC2_IP }} # EC2 IP address
+          username: ec2-user # EC2 username
+          key: ${{ secrets.SSH_KEY }} # SSH key for authentication
+          port: 22 # SSH port
           script: |
-            # Install Helm
-            curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-
-            # Deploy MySQL Helm chart
-            helm upgrade --install mysql /home/ec2-user/repo/helm-charts/mysql \
+            curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash # Install Helm
+            helm upgrade --install mysql ~/repo/helm-charts/mysql \ # Deploy MySQL Helm chart
               --namespace my-app \
               --create-namespace \
-              --values /home/ec2-user/repo/helm-charts/mysql/values.yaml
-
-            # Wait for MySQL to become available
-            kubectl wait --namespace my-app --for=condition=ready pod --selector=app=mysql --timeout=300s
-
-            # Deploy Application Helm chart
-            helm upgrade --install application /home/ec2-user/repo/helm-charts/application \
+              --values ~/repo/helm-charts/mysql/values.yaml
+            kubectl wait --namespace my-app --for=condition=ready pod --selector=app=mysql --timeout=300s # Wait for MySQL to be ready
+            helm upgrade --install application ~/repo/helm-charts/application \ # Deploy application Helm chart
               --namespace my-app \
-              --values /home/ec2-user/repo/helm-charts/application/values.yaml
+              --values ~/repo/helm-charts/application/values.yaml

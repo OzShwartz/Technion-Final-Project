@@ -1,41 +1,35 @@
-replicaCount: 2
+replicaCount: 2 # Number of application replicas
 
 image:
-  repository: oz23/photos-app
-  tag: latest
-  pullPolicy: IfNotPresent
+  repository: oz23/photos-app # Docker image for the application
+  tag: latest # Use the latest version
+  pullPolicy: IfNotPresent # Pull image only if not available locally
 
 service:
-  type: NodePort
-  port: 80
+  type: NodePort # Expose service externally with a NodePort
+  port: 80 # Application port
 
 database:
-  host: "{{ .Release.Name }}-mysql"
-  port: "3306"
-  user: "user"
-  password: "password"
-  name: "mydb"
+  host: "{{ .Release.Name }}-mysql" # MySQL hostname
+  port: "3306" # MySQL port
+  user: "user" # Database user
+  password: "password" # Database password
+  name: "mydb" # Database name
 
-  dbRootPassword: rootPassword
-  dbName: mydb
-  dbUser: user
-  dbPassword: password
-  
 secrets:
-  dbRootPassword: rootPassword
-  dbName: mydb
-  dbUser: user
-  dbPassword: password
+  dbRootPassword: rootPassword # MySQL root password
+  dbName: mydb # Database name
+  dbUser: user # Database user
+  dbPassword: password # Database password
 
 s3:
-  bucket: "final-project-technion-2468"
-  region: "us-east-1"
+  bucket: "final-project-technion-24688" # S3 bucket for the project
+  region: "us-east-1" # AWS region
 
+resources: {} # Resource requests and limits for the application pods
 
-resources: {}
+nodeSelector: {} # Node selection criteria
 
-nodeSelector: {}
+tolerations: [] # Tolerations for scheduling pods on nodes
 
-tolerations: []
-
-affinity: {}
+affinity: {} # Pod affinity rules

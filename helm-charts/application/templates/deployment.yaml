@@ -1,32 +1,46 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-app
+  name: {{ .Release.Name }}-app # Deployment name
+  labels:
+    app: {{ .Release.Name }}-app # Label for the application pods
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.replicaCount }} # Number of replicas
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-app
+      app: {{ .Release.Name }}-app # Label selector for the pods
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-app
+        app: {{ .Release.Name }}-app # Pod label
     spec:
       containers:
       - name: app
-      image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-      imagePullPolicy: {{ .Values.image.pullPolicy }}
-      ports:
-        - containerPort: 5001
-      envFrom:
-        - secretRef:
-            name: db-secrets
-      volumeMounts:
-        - name: app-config
-            mountPath: /app/config/app_settings.py
-            subPath: app_settings.py
-    volumes:
-        - name: app-config
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}" # Application image
+        imagePullPolicy: {{ .Values.image.pullPolicy }} # Pull policy
+        ports:
+        - containerPort: 5001 # Container port
+        env: # Environment variables for database connection
+        - name: DB_HOST
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-db-secrets
+              key: dbHost
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-db-secrets
+              key: dbUser
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-db-secrets
+              key: dbPassword
+      volumes:
+      - name: app-config
         configMap:
-            name: {{ .Release.Name }}-app-config
-
+          name: {{ .Release.Name }}-app-config # ConfigMap for application settings
+      volumeMounts:
+      - name: app-config
+        mountPath: /app/config/app_settings.py # Mount path for configuration file
+        subPath: app_settings.py

@@ -2,12 +2,14 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: {{ .Release.Name }}-mysql
+  labels:
+    app: {{ .Release.Name }}-mysql # Label to identify this application
 spec:
-  serviceName: {{ .Release.Name }}-mysql
-  replicas: {{ .Values.replicaCount }}
+  serviceName: {{ .Release.Name }}-mysql # Service name associated with the StatefulSet
+  replicas: {{ .Values.replicaCount }} # Number of replicas from values.yaml
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-mysql
+      app: {{ .Release.Name }}-mysql # Selector for matching pods
   template:
     metadata:
       labels:
@@ -15,47 +17,50 @@ spec:
     spec:
       containers:
         - name: mysql
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}" # MySQL image from values.yaml
+          imagePullPolicy: {{ .Values.image.pullPolicy }} # Pull policy
           ports:
-            - containerPort: 3306
+            - containerPort: {{ .Values.service.port }} # MySQL port from values.yaml
           env:
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: db-secrets
+                  name: {{ .Release.Name }}-db-secrets # Secret name dynamically set
                   key: dbRootPassword
             - name: MYSQL_DATABASE
               valueFrom:
                 secretKeyRef:
-                  name: db-secrets
+                  name: {{ .Release.Name }}-db-secrets
                   key: dbName
             - name: MYSQL_USER
               valueFrom:
                 secretKeyRef:
-                  name: db-secrets
+                  name: {{ .Release.Name }}-db-secrets
                   key: dbUser
             - name: MYSQL_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: db-secrets
+                  name: {{ .Release.Name }}-db-secrets
                   key: dbPassword
           volumeMounts:
             - name: mysql-persistent-storage
-              mountPath: /var/lib/mysql
+              mountPath: /var/lib/mysql # Path for MySQL data
             - name: mysql-config
-              mountPath: /etc/mysql/conf.d/my.cnf
+              mountPath: /etc/mysql/conf.d/my.cnf # Config mount path
               subPath: my.cnf
       volumes:
         - name: mysql-config
           configMap:
-            name: {{ .Release.Name }}-mysql-config
+            name: {{ .Release.Name }}-mysql-config # ConfigMap dynamically set
   volumeClaimTemplates:
     - metadata:
         name: mysql-persistent-storage
+        annotations:
+          "app.kubernetes.io/managed-by": "Helm" # Managed by Helm annotation
       spec:
-        accessModes: ["ReadWriteOnce"]
+        accessModes:
+          - ReadWriteOnce
         resources:
           requests:
-            storage: {{ .Values.storage.size }}
-        storageClassName: {{ .Values.storage.className }}
+            storage: {{ .Values.storage.size }} # Storage size from values.yaml
+        storageClassName: {{ .Values.storage.className }} # Storage class from values.yaml

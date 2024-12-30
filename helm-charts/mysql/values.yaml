@@ -1,37 +1,37 @@
-replicaCount: 1
+replicaCount: 1 # Number of MySQL replicas
 
 image:
-  repository: mysql
-  tag: "8.0"
-  pullPolicy: IfNotPresent
+  repository: mysql # MySQL Docker image
+  tag: "8.0" # MySQL version
+  pullPolicy: IfNotPresent # Pull image only if not available locally
 
 service:
-  type: ClusterIP
-  port: 3306
+  type: ClusterIP # Service type to expose MySQL within the cluster
+  port: 3306 # Default MySQL port
 
 storage:
-  size: 10Gi
-  className: standard
+  size: 10Gi # Persistent volume size
+  className: standard # Storage class name
 
 secrets:
-  dbRootPassword: rootPassword
-  dbName: mydb
-  dbUser: user
-  dbPassword: password
+  dbRootPassword: rootPassword # MySQL root password
+  dbName: mydb # Database name
+  dbUser: user # Database user
+  dbPassword: password # Database user password
 
 storageClass:
-  name: standard
+  name: standard # Storage class name
   annotations:
-    app.kubernetes.io/managed-by: "Helm"
-    meta.helm.sh/release-name: "mysql"
-    meta.helm.sh/release-namespace: "my-app"
+    "app.kubernetes.io/managed-by": "Helm" # Managed by Helm annotation
+    "meta.helm.sh/release-name": "mysql" # Helm release name annotation
+    "meta.helm.sh/release-namespace": "my-app" # Helm release namespace annotation
 
-mysqlUrl: "mysql://user:password@mysql-service.my-app.svc.cluster.local:3306/mydb"
+mysqlUrl: "mysql://user:password@mysql-service.my-app.svc.cluster.local:3306/mydb" # MySQL connection string
 
-resources: {}
+resources: {} # Resource requests and limits for MySQL pods
 
-nodeSelector: {}
+nodeSelector: {} # Node selection criteria
 
-tolerations: []
+tolerations: [] # Tolerations for scheduling pods on nodes
 
-affinity: {}
+affinity: {} # Pod affinity rules
