@@ -25,3 +25,19 @@ module "ec2" {
 
   depends_on = [ module.sg ]
 }
+
+
+module "ebs" {
+  source = "./modules/ebs"
+  for_each = var.ec2_map
+
+  name            = "${each.key}-ebs-volume"
+  availability_zone = var.availability_zone
+  volume_size     = try(each.value.ebs.volume_size, var.default_ebs_size)
+  volume_type     = try(each.value.ebs.volume_type, var.default_ebs_type)
+  device_name     = try(each.value.ebs.device_name, "/dev/xvdf")
+  instance_id     = module.ec2[each.key].instance_id
+  force_detach    = try(each.value.ebs.force_detach, false)
+  depends_on      = [module.ec2]
+}
+
