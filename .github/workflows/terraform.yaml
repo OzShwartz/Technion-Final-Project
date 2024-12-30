@@ -81,7 +81,7 @@ jobs:
     steps:
       - uses: trstringer/manual-approval@v1
         with:
-          secret: ${{ secrets.GH_PAT }}
+          secret: ${{ secrets.GIT_PAT }}
           approvers: ${{ vars.TERRAFORM_MANUAL_APPROVALS }}
           minimum-approvals: 1
           issue-title: "Terraform Apply Approval Request"
