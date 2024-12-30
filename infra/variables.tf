@@ -56,12 +56,12 @@ variable "availability_zone" {
 
 #   user_data = <<-EOF
 #     #!/bin/bash
-#     sudo yum update -y
-#     sudo yum install -y libicu
-#     mkdir actions-runner && cd actions-runner
-#     curl -o actions-runner-linux-x64-2.321.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.321.0/actions-runner-linux-x64-2.321.0.tar.gz
-#     tar xzf ./actions-runner-linux-x64-2.321.0.tar.gz
-#     ./config.sh --url https://github.com/OzShwartz/Technion-Final-Project --token A2O2NWGHBS4ECNBQJIJMCS3HOKQ26 --unattended --replace
-#     sudo ./svc.sh install
-#     sudo ./svc.sh start
+    # sudo yum update -y
+    # sudo yum install -y libicu
+    # mkdir actions-runner && cd actions-runner
+    # curl -o actions-runner-linux-x64-2.321.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.321.0/actions-runner-linux-x64-2.321.0.tar.gz
+    # tar xzf ./actions-runner-linux-x64-2.321.0.tar.gz
+    # ./config.sh --url https://github.com/OzShwartz/Technion-Final-Project --token A2O2NWEMYFX46CMMD765XD3HOKSV4 --unattended --replace
+    # sudo ./svc.sh install
+    # sudo ./svc.sh start
 #   EOF
