@@ -19,6 +19,13 @@ secrets:
   dbUser: user
   dbPassword: password
 
+storageClass:
+  name: standard
+  annotations:
+    app.kubernetes.io/managed-by: "Helm"
+    meta.helm.sh/release-name: "mysql"
+    meta.helm.sh/release-namespace: "my-app"
+
 mysqlUrl: "mysql://user:password@mysql-service.my-app.svc.cluster.local:3306/mydb"
 
 resources: {}

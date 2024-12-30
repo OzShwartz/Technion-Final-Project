@@ -20,6 +20,12 @@ database:
   dbName: mydb
   dbUser: user
   dbPassword: password
+  
+secrets:
+  dbRootPassword: rootPassword
+  dbName: mydb
+  dbUser: user
+  dbPassword: password
 
 s3:
   bucket: "final-project-technion-2468"
