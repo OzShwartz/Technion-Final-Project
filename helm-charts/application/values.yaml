@@ -1,7 +1,7 @@
 replicaCount: 2 # Number of application replicas
 
 image:
-  repository: oz23/photos-app # Docker image for the application
+  repository: oz23/pyui # Docker image for the application
   tag: latest # Use the latest version
   pullPolicy: IfNotPresent # Pull image only if not available locally
 
