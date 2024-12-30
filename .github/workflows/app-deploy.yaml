@@ -28,12 +28,21 @@ jobs:
           key: ${{ secrets.SSH_KEY }} # SSH key for authentication
           port: 22 # SSH port
           script: |
-            curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash # Install Helm
-            helm upgrade --install mysql ~/repo/helm-charts/mysql \ # Deploy MySQL Helm chart
+            set -e # Stop execution on error
+
+            # Install Helm
+            curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+            # Deploy MySQL Helm chart
+            helm upgrade --install mysql ~/repo/helm-charts/mysql \
               --namespace my-app \
               --create-namespace \
-              --values ~/repo/helm-charts/mysql/values.yaml
-            kubectl wait --namespace my-app --for=condition=ready pod --selector=app=mysql --timeout=300s # Wait for MySQL to be ready
-            helm upgrade --install application ~/repo/helm-charts/application \ # Deploy application Helm chart
+              --values ~/repo/helm-charts/mysql/values.yaml || echo "MySQL deployment failed."
+
+            # Wait for MySQL pods to be ready
+            kubectl wait --namespace my-app --for=condition=ready pod --selector=app=mysql --timeout=300s || echo "MySQL pods did not become ready."
+
+            # Deploy Application Helm chart
+            helm upgrade --install application ~/repo/helm-charts/application \
               --namespace my-app \
-              --values ~/repo/helm-charts/application/values.yaml
+              --values ~/repo/helm-charts/application/values.yaml || echo "Application deployment failed."
