@@ -16,6 +16,11 @@ database:
   password: "password"
   name: "mydb"
 
+  dbRootPassword: rootPassword
+  dbName: mydb
+  dbUser: user
+  dbPassword: password
+
 s3:
   bucket: "final-project-technion-2468"
   region: "us-east-1"
