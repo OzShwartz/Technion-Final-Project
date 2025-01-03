@@ -38,7 +38,7 @@ Connect and configure in EC2 Git Runner:
     mkdir actions-runner && cd actions-runner
     curl -o actions-runner-linux-x64-2.321.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.321.0/actions-runner-linux-x64-2.321.0.tar.gz
     tar xzf ./actions-runner-linux-x64-2.321.0.tar.gz
-    ./config.sh --url https://github.com/OzShwartz/Technion-Final-Project --token A2O2NWEMYFX46CMMD765XD3HOKSV4 --unattended --replace
+    ./config.sh --url https://github.com/OzShwartz/Technion-Final-Project --token XXXXXXXXXXXXXXXXXXXXXXXXXXXXX --unattended --replace
     sudo ./svc.sh install
     sudo ./svc.sh start 
 
